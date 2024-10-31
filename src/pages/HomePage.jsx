@@ -1,11 +1,10 @@
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import arrowimg from "./../assets/images/icon-arrow.svg";
 import moment from "moment";
 
 function HomePage() {
   const id = useId();
   const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
   const [inputs, setInputs] = useState({
     day: "",
     month: "",
@@ -14,34 +13,46 @@ function HomePage() {
   const [age, setAge] = useState({ years: "--", months: "--", days: "--" });
 
   const handleOnChange = (e) => {
-    setInputs((prevItems) => ({
-      ...prevItems,
-      [e.target.name]: e.target.value,
+    const { name, value } = e.target;
+    setInputs((prevInputs) => ({
+      ...prevInputs,
+      [name]: value,
+    }));
+
+    // Validate the individual field as it's changed
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: validateField(name, value),
     }));
   };
 
+  const validateField = (fieldName, value) => {
+    const currentYear = Number(moment().format("YYYY"));
+    if (value === "") return "This field is required";
+
+    switch (fieldName) {
+      case "day":
+        return isNaN(value) || value < 1 || value > 31
+          ? "Must be a valid day"
+          : "";
+      case "month":
+        return isNaN(value) || value < 1 || value > 12
+          ? "Must be a valid month"
+          : "";
+      case "year":
+        return isNaN(value) || value > currentYear ? `Must be in the past` : "";
+      default:
+        return "";
+    }
+  };
+
   const validateValues = (inputs) => {
-    let saveErrors = {};
-
-    if (!inputs.day) {
-      saveErrors.day = "This field is required";
-    } else if (Number(inputs.day) > 31) {
-      saveErrors.day = "Must be a valid day";
+    const errors = {};
+    for (const field in inputs) {
+      const error = validateField(field, inputs[field]);
+      if (error) errors[field] = error;
     }
-
-    if (!inputs.month) {
-      saveErrors.month = "This field is required";
-    } else if (Number(inputs.month) > 12) {
-      saveErrors.month = "Must be a valid month";
-    }
-
-    if (!inputs.year) {
-      saveErrors.year = "This field is required";
-    } else if (Number(inputs.year) > Number(moment().format("YYYY"))) {
-      saveErrors.year = "Must be a valid year";
-    }
-
-    return saveErrors;
+    return errors;
   };
 
   const handleSubmit = (event) => {
@@ -51,9 +62,7 @@ function HomePage() {
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      setSubmitting(true);
-    } else {
-      setSubmitting(false);
+      finishSubmit();
     }
   };
 
@@ -64,12 +73,6 @@ function HomePage() {
     );
     const now = moment();
 
-    if (!birthDate.isValid() || birthDate > now) {
-      setErrors({ date: "Please enter a valid past date" });
-      setSubmitting(false);
-      return;
-    }
-
     const years = now.diff(birthDate, "years");
     birthDate.add(years, "years");
 
@@ -79,14 +82,7 @@ function HomePage() {
     const days = now.diff(birthDate, "days");
 
     setAge({ years, months, days });
-    setSubmitting(false);
   };
-
-  useEffect(() => {
-    if (submitting) {
-      finishSubmit();
-    }
-  }, [submitting]);
 
   return (
     <div className="bg-[var(--White)] w-[300px] py-11 px-5 rounded-2xl rounded-br-[90px] h-96 sm:w-[500px] sm:h-[400px] sm:px-8 ">
@@ -109,8 +105,6 @@ function HomePage() {
               type="number"
               name="day"
               placeholder="DD"
-              min={1}
-              max={31}
               value={inputs.day}
               onChange={handleOnChange}
             />
@@ -135,8 +129,6 @@ function HomePage() {
               type="number"
               name="month"
               placeholder="MM"
-              min={1}
-              max={12}
               value={inputs.month}
               onChange={handleOnChange}
             />
@@ -163,8 +155,6 @@ function HomePage() {
               type="number"
               name="year"
               placeholder="YYYY"
-              min={1}
-              max={moment().format("YYYY")}
               value={inputs.year}
               onChange={handleOnChange}
             />
