@@ -85,7 +85,7 @@ function HomePage() {
   };
 
   return (
-    <div className="bg-[var(--White)] w-[300px] py-11 px-5 rounded-2xl rounded-br-[90px] h-96 sm:w-[500px] sm:h-[400px] sm:px-8 ">
+    <div className="bg-[var(--White)] w-[300px] py-11 px-5 rounded-2xl rounded-br-[90px] h-90 sm:w-[500px] sm:h-[400px] sm:px-8 ">
       <form onSubmit={handleSubmit}>
         <div className="flex justify-start font-[simplebold] items-start gap-2 w-full sm:w-[90%] sm:gap-4">
           <div className="flex flex-col gap-1 w-[30%]">
