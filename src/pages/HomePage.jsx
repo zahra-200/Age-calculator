@@ -172,7 +172,7 @@ function HomePage() {
           </button>
         </div>
       </form>
-      <div className="text-5xl font-[extrabolditalic] sm:text-6xl">
+      <div className="text-4xl font-[extrabolditalic] sm:text-6xl">
         <p>
           <span className="text-[var(--Purple)]">{age.years}</span> years
         </p>
